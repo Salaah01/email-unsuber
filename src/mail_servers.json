@@ -1,0 +1,17 @@
+{
+  "gmail": {
+    "server": "imap.gmail.com",
+    "port": 993,
+    "method": "_gmail"
+  },
+  "hotmail": {
+    "server": "smtp-mail.outlook.com",
+    "port": 587,
+    "method": "_generic"
+  },
+  "outlook": {
+    "server": "smtp-mail.outlook.com",
+    "port": 587,
+    "method": "_generic"
+  }
+}
