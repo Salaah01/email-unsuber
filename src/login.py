@@ -1,10 +1,6 @@
-import os
 import re
 import json
-import email
-from email.header import decode_header
 import imaplib
-import webbrowser
 
 try:
     from creds import email, password
