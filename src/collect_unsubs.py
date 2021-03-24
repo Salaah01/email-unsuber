@@ -1,17 +1,40 @@
+"""Logs into the user's account and parses each email collecting unsubscribe
+link from unique emails which are then outputted to a file.
+"""
+
 import re
+import os
 from datetime import datetime
 import email
-from login import Login
-from output_dict import OutputDict
-from etaprogress.progress import ProgressBar
-import os
 from getpass import getpass
 from tkinter import filedialog, TclError
+from etaprogress.progress import ProgressBar
+from login import Login
+from output_dict import OutputDict
 from args_parser import args_parser
+from exit_program import exit_program
 
 
 class CollectUnsubs:
-    def __init__(self, email: str, password: str, outDir: str, filetype: str):
+    def __init__(
+        self,
+        email: str,
+        password: str,
+        outDir: str,
+        filetype: str,
+        debug=False
+    ):
+        """Logs into the user's account and parses each email collecting
+        unsubscribe link from unique emails which are then outputted to a file.
+
+        Args:
+            email - (str) Email address
+            password - (str) Password
+            outDir - (str) Output file directory
+            filetype - (str) Output filetype
+            debug - (bool) Debug mode
+        """
+
         if not OutputDict.valdidate_filetype(filetype):
             raise ValueError(
                 'Invalid filetype. Valid outputs: json, csv, xlsx'
@@ -20,6 +43,7 @@ class CollectUnsubs:
         self.password = password
         self.outDir = outDir
         self.filetype = filetype
+        self.debug = debug
         self._imap = self._set_imap()
         self._links = {}
 
@@ -97,7 +121,7 @@ class CollectUnsubs:
 
                     break
 
-            except:
+            except Exception:
                 print('Something went wrong, skipping.')
 
             progressBar.numerator = int(messageNumber)
@@ -144,7 +168,7 @@ class CollectUnsubs:
         return []
 
     def _set_imap(self):
-        login = Login(self.email, self.password)
+        login = Login(self.email, self.password, self.debug)
         login.login()
         return login.get_imap()
 
@@ -160,13 +184,12 @@ class CollectUnsubs:
 
 def main():
     """Main entrypoint for running the program."""
-
     # Parse cli arguments.
     args = args_parser()
 
     # Email
-    if args.email.strip():
-        email = args.email.strip()
+    if args.email:
+        email = args.email
     elif args.email_env:
         email = os.getenv(args.email_env)
         if not email:
@@ -201,10 +224,11 @@ def main():
             outputDirectory = input('Output directory: ')
 
     # Run program
-    unsubs = CollectUnsubs(args.email, password,
+    unsubs = CollectUnsubs(email, password,
                            outputDirectory, args.filetype)
     unsubs.fetch_unsub_links()
     unsubs.output()
+    exit_program()
 
 
 if __name__ == '__main__':

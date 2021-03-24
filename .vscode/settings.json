@@ -1,6 +1,8 @@
 {
   "cSpell.words": [
-    "Unsubs"
+    "Unsubs",
+    "filedialog",
+    "fileno"
   ],
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": false,

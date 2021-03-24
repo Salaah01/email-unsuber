@@ -5,19 +5,23 @@ account.
 import re
 import json
 import imaplib
+import traceback
+from exit_program import exit_program
 
 
 class Login:
-    def __init__(self, email: str, password: str):
+    def __init__(self, email: str, password: str, debug=False):
         """Logins the user and returns an object to allow interaction with the
         email account.
 
         Args:
             email - (str) Email address.
             pass - (str) Password
+            debug - (bool) Debug mode?
         """
         self.email = email
         self.password = password
+        self.debug = debug
 
         self._domain = self._set_domain()
         self._mailServer = self._set_mail_server()
@@ -28,7 +32,21 @@ class Login:
         """Creates an IMAP class with SSL, logins in the user and returns the
         IMAP instance.
         """
-        return getattr(self, self.get_mail_server()['method'])()
+        method = getattr(self, self.get_mail_server()['method'])
+        try:
+            return method()
+        except Exception:
+            if self.debug:
+                raise Exception(traceback.format_exc())
+            else:
+                print('Login failed.')
+                print('Check that you have used the correct credentials.')
+                print(
+                    'If credentials are correct, check if you need to create an app password.'
+                )
+                print('Check documention for more information:')
+                print('https://github.com/Salaah01/email-unsuber')
+                exit_program()
 
     def logout(self):
         """Logs out the user."""
