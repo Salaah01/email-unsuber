@@ -11,9 +11,9 @@ The program will not however click on each link for you attempting to unsubscrib
 ## Installation
 |Platform|Method|
 -- | --
-| Windows | Download and run email-unsuber.exe |
+| Windows | Download and run [collectUnsubs.exe](https://github.com/Salaah01/email-unsuber/releases/download/v0.1-alpha/collectUnsubs.exe) |
 | Mac | Not supported yet |
-| Linux (Debian) | Download and run email-unsuber.deb |
+| Linux | Download and run [collectUnsubs](https://github.com/Salaah01/email-unsuber/releases/download/v0.1-alpha/collectUnsubs) |
 
 ### Running from Source
 If you wish to run the program directory without running a binary, please follow the instructions below. The only requirement is Python3.
@@ -44,7 +44,7 @@ The program will require some arguments to be set when running the program.
                         Output file type.
   -o OUTPUT_DIRECTORY, --output-directory OUTPUT_DIRECTORY
                         Directory of where the file should be stored.
-  -v DEBUG, --verbose VERBOSE
+  -v VERBOSE, --verbose VERBOSE
                         Output error messages.
 ```
 
