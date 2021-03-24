@@ -29,39 +29,69 @@ class CollectUnsubs:
         startTime = datetime.now()
         print(f"({startTime.strftime('%H:%M:%S')}) Parsing emails... Start")
 
+        continueProcess = True
         for messageNumber in messageNumbers:
-            _, msg = imap.fetch(messageNumber, '(RFC822)')
 
-            # Parse the email.
-            if msg and msg[0]:
-                message = email.message_from_bytes(msg[0][1])
-            else:
-                continue
+            # Check if the process should continue.
+            if not continueProcess:
+                break
 
-            emailFrom = self.extract_email(message['from'])
+            try:
+                _, msg = imap.fetch(messageNumber, '(RFC822)')
 
-            # If sender's email could not be found or the sender email is
-            # already stored, then move on.
-            if not emailFrom or email in self.get_links():
-                continue
+                # Parse the email.
+                if msg and msg[0]:
+                    message = email.message_from_bytes(msg[0][1])
+                else:
+                    continue
 
-            if message.is_multipart():
-                for part in message.walk():
-                    multipartPayload = message.get_payload()
-                    for subMessage in multipartPayload:
-                        try:
-                            link = self.extract_unsub_link(
-                                subMessage.get_payload(decode=True).decode()
-                            )
+                emailFrom = self.extract_email(message['from'])
 
-                            if link:
-                                self.add_link(emailFrom, link)
+                # If sender's email could not be found or the sender email is
+                # already stored, then move on.
+                if not emailFrom or email in self.get_links():
+                    continue
 
-                        except (UnicodeDecodeError, AttributeError):
-                            pass
-            else:
-                # message.get_payload(decode=True).decode()
-                pass
+                if message.is_multipart():
+                    for part in message.walk():
+                        multipartPayload = message.get_payload()
+                        for subMessage in multipartPayload:
+                            try:
+                                link = self.extract_unsub_link(
+                                    subMessage.get_payload(
+                                        decode=True).decode()
+                                )
+
+                                if link:
+                                    self.add_link(emailFrom, link)
+
+                            except (UnicodeDecodeError, AttributeError):
+                                pass
+                else:
+                    # message.get_payload(decode=True).decode()
+                    pass
+
+            except KeyboardInterrupt:
+                # On keyboard interrupt, check if the user wants to continue
+                # parsing emails. If they do not, then stop the process and
+                # move on.
+                stopProcess = None
+                while stopProcess is None:
+                    print()
+                    stopProcess = input('Stop process? [y/N] ',).lower()
+                    if stopProcess not in ('y', 'n'):
+                        stopProcess = None
+                        print('Invalid entry, enter y (yes) or n (no).')
+                        continue
+
+                    if stopProcess == 'y':
+                        print('exiting email parsing.')
+                        continueProcess = False
+
+                    break
+
+            except:
+                print('Something went wrong, skipping.')
 
             progressBar.numerator = int(messageNumber)
             print(progressBar, end='\r')
@@ -92,12 +122,19 @@ class CollectUnsubs:
     @staticmethod
     def extract_unsub_link(text: str) -> list:
         pattern = re.compile('href=[\'"](http.*?unsubscribe.*?)[\\\'";]')
+        validate = re.compile(
+            "^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#[\]@!\$&'\(\)\*\+,;=.]+$"
+        )
+
         try:
             match = re.search(pattern, text)
+            if match and re.search(validate, match.group()[0]):
+                return match.groups()[0] if match else []
+
         except TypeError:
             pass
 
-        return match.groups()[0] if match else []
+        return []
 
     @staticmethod
     def _set_imap():
@@ -116,6 +153,6 @@ class CollectUnsubs:
 
 
 if __name__ == '__main__':
-    unsubs = CollectUnsubs('xlsx')
+    unsubs = CollectUnsubs('csv')
     unsubs.fetch_unsub_links()
     unsubs.output()
