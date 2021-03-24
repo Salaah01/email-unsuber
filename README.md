@@ -1,4 +1,4 @@
-# Collect Unsubscribe Links (In Development)
+# Collect Unsubscribe Links
 ## Description
 This program will parse through your emails and collect a list of unsubscribe links and output them into a CSV, XLSX (Excel) or JSON.
 
