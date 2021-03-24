@@ -4,14 +4,21 @@ import email
 from login import Login
 from output_dict import OutputDict
 from etaprogress.progress import ProgressBar
+import os
+from getpass import getpass
+from tkinter import filedialog, TclError
+from args_parser import args_parser
 
 
 class CollectUnsubs:
-    def __init__(self, filetype: str):
+    def __init__(self, email: str, password: str, outDir: str, filetype: str):
         if not OutputDict.valdidate_filetype(filetype):
             raise ValueError(
                 'Invalid filetype. Valid outputs: json, csv, xlsx'
             )
+        self.email = email
+        self.password = password
+        self.outDir = outDir
         self.filetype = filetype
         self._imap = self._set_imap()
         self._links = {}
@@ -98,11 +105,11 @@ class CollectUnsubs:
 
         endTime = datetime.now()
         duration = str(endTime - startTime).split('.')[0]
-        print(f"({endTime.strftime('%H:%M:%S')}) Parsing emails... Done")
+        print(f"\n({endTime.strftime('%H:%M:%S')}) Parsing emails... Done")
         print(f"({datetime.now().strftime('%H:%M:%S')}) Duration: {duration}")
 
     def output(self):
-        OutputDict(self.get_links(), self.filetype).write_output()
+        OutputDict(self.get_links(), self.outDir, self.filetype).write_output()
 
     @staticmethod
     def extract_email(text: str):
@@ -136,9 +143,8 @@ class CollectUnsubs:
 
         return []
 
-    @staticmethod
-    def _set_imap():
-        login = Login()
+    def _set_imap(self):
+        login = Login(self.email, self.password)
         login.login()
         return login.get_imap()
 
@@ -152,7 +158,54 @@ class CollectUnsubs:
         return self._links
 
 
-if __name__ == '__main__':
-    unsubs = CollectUnsubs('csv')
+def main():
+    """Main entrypoint for running the program."""
+
+    # Parse cli arguments.
+    args = args_parser()
+
+    # Email
+    if args.email.strip():
+        email = args.email.strip()
+    elif args.email_env:
+        email = os.getenv(args.email_env)
+        if not email:
+            raise EnvironmentError(
+                'Email does not exist in environment variables.'
+            )
+    elif args.email_file:
+        with open(args.email_file, 'r') as emailFile:
+            email = emailFile.readline()
+    else:
+        email = input('Email address: ')
+
+    # Password
+    if args.password_env:
+        password = os.getenv(args.password_env)
+        if not password:
+            raise EnvironmentError(
+                'Password does not exist in environment variables.'
+            )
+    elif args.password_file:
+        with open(args.password_file, 'r') as passFile:
+            password = passFile.readline()
+    else:
+        password = getpass('Enter your email address password: ')
+
+    # Output Directory
+    outputDirectory = args.output_directory
+    if not outputDirectory:
+        try:
+            outputDirectory = filedialog.askdirectory()
+        except TclError:
+            outputDirectory = input('Output directory: ')
+
+    # Run program
+    unsubs = CollectUnsubs(args.email, password,
+                           outputDirectory, args.filetype)
     unsubs.fetch_unsub_links()
     unsubs.output()
+
+
+if __name__ == '__main__':
+    main()

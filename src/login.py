@@ -1,16 +1,21 @@
+"""Logins the user and returns an object to allow interaction with the email
+account.
+"""
+
 import re
 import json
 import imaplib
 
-try:
-    from creds import email, password
-except ImportError:
-    email = input('email')
-    password = input('password')
-
 
 class Login:
-    def __init__(self, email=email, password=password):
+    def __init__(self, email: str, password: str):
+        """Logins the user and returns an object to allow interaction with the
+        email account.
+
+        Args:
+            email - (str) Email address.
+            pass - (str) Password
+        """
         self.email = email
         self.password = password
 
@@ -59,8 +64,3 @@ class Login:
         """A generic login method."""
         self._imap = imaplib.IMAP4_SSL(self.get_mail_server()['server'])
         self._imap.login(self.email, self.password)
-
-
-if __name__ == '__main__':
-    login = Login()
-    login.login()
