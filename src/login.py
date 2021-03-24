@@ -1,12 +1,12 @@
 """Logins the user and returns an object to allow interaction with the email
 account.
 """
-
+import os
 import re
 import json
 import imaplib
 import traceback
-from exit_program import exit_program
+from exit_program import ExitProgram
 
 
 class Login:
@@ -46,7 +46,7 @@ class Login:
                 )
                 print('Check documention for more information:')
                 print('https://github.com/Salaah01/email-unsuber')
-                exit_program()
+                ExitProgram()
 
     def logout(self):
         """Logs out the user."""
@@ -59,7 +59,8 @@ class Login:
 
     def _set_mail_server(self):
         """Returns the mailing server settings for the user's domain."""
-        with open('mail_servers.json', 'r') as jsonFile:
+        # with open('mail_servers.json', 'r') as jsonFile:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'mail_servers.json'), 'r') as jsonFile:
             mailServers = json.load(jsonFile)
 
         for mailServer in mailServers.keys():

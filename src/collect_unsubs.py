@@ -7,12 +7,12 @@ import os
 from datetime import datetime
 import email
 from getpass import getpass
-from tkinter import filedialog, TclError
+from tkinter import filedialog, TclError, Tk
 from etaprogress.progress import ProgressBar
 from login import Login
 from output_dict import OutputDict
 from args_parser import args_parser
-from exit_program import exit_program
+from exit_program import ExitProgram
 
 
 class CollectUnsubs:
@@ -215,20 +215,28 @@ def main():
     else:
         password = getpass('Enter your email address password: ')
 
+    # File format
+    filetype = args.filetype.lower() if args.filetype else None
+
+    while filetype not in ('json', 'csv', 'xlsx'):
+        filetype = input(
+            'Please enter the file output format. Choices: json, csv, xlsx: '
+        )
+
     # Output Directory
     outputDirectory = args.output_directory
     if not outputDirectory:
         try:
             outputDirectory = filedialog.askdirectory()
+            Tk().withdraw()
         except TclError:
             outputDirectory = input('Output directory: ')
 
     # Run program
-    unsubs = CollectUnsubs(email, password,
-                           outputDirectory, args.filetype)
+    unsubs = CollectUnsubs(email, password, outputDirectory, filetype)
     unsubs.fetch_unsub_links()
     unsubs.output()
-    exit_program()
+    ExitProgram()
 
 
 if __name__ == '__main__':

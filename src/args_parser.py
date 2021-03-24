@@ -1,11 +1,11 @@
 """Parses arguments for when running program as a module."""
 
 import argparse
-
+import os
 
 def args_parser():
     """Parses arguments for running program as a module."""
-
+    
     argsParser = argparse.ArgumentParser(
         description='Parse through your emails and collect a list of \
             unsubscribe links and output them into a CSV, XLSX (Excel) or JSON'
@@ -48,7 +48,6 @@ def args_parser():
         '--filetype',
         action='store',
         choices=['csv', 'xlsx', 'json'],
-        required=True,
         help='Output file type.'
     )
     argsParser.add_argument(

@@ -1,0 +1,7 @@
+Version: 1.0.0
+CompanyName: Salaah Amin
+FileDescription: This program will parse through your emails and collect a list of unsubscribe links and output them into a CSV, XLSX (Excel) or JSON.
+InternalName: Email Unsuber
+OriginalFilename: EmailUnsuber.exe
+ProductName: Email Usuber
+Licence: MIT
