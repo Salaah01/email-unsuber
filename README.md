@@ -44,6 +44,8 @@ The program will require some arguments to be set when running the program.
                         Output file type.
   -o OUTPUT_DIRECTORY, --output-directory OUTPUT_DIRECTORY
                         Directory of where the file should be stored.
+  -v DEBUG, --verbose VERBOSE
+                        Output error messages.
 ```
 
 ## Supported Mail Servers

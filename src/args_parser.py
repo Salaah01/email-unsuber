@@ -3,9 +3,10 @@
 import argparse
 import os
 
+
 def args_parser():
     """Parses arguments for running program as a module."""
-    
+
     argsParser = argparse.ArgumentParser(
         description='Parse through your emails and collect a list of \
             unsubscribe links and output them into a CSV, XLSX (Excel) or JSON'
@@ -55,6 +56,12 @@ def args_parser():
         '--output-directory',
         action='store',
         help='Directory of where the file should be stored.'
+    )
+    argsParser.add_argument(
+        '-v',
+        '--verbose',
+        action='store_true',
+        help="Output full error messages."
     )
 
     return argsParser.parse_args()

@@ -4,7 +4,9 @@ link from unique emails which are then outputted to a file.
 
 import re
 import os
+import traceback
 from datetime import datetime
+from ast import literal_eval
 import email
 from getpass import getpass
 from tkinter import filedialog, TclError, Tk
@@ -122,7 +124,10 @@ class CollectUnsubs:
                     break
 
             except Exception:
-                print('Something went wrong, skipping.')
+                if self.debug:
+                    print(traceback.format_exc())
+                else:
+                    print('Something went wrong, skipping.')
 
             progressBar.numerator = int(messageNumber)
             print(progressBar, end='\r')
@@ -159,8 +164,9 @@ class CollectUnsubs:
 
         try:
             match = re.search(pattern, text)
-            if match and re.search(validate, match.group()[0]):
-                return match.groups()[0] if match else []
+            if match:
+                if re.search(validate, match.groups()[0]):
+                    return match.groups()[0]
 
         except TypeError:
             pass
@@ -233,7 +239,8 @@ def main():
             outputDirectory = input('Output directory: ')
 
     # Run program
-    unsubs = CollectUnsubs(email, password, outputDirectory, filetype)
+    unsubs = CollectUnsubs(email, password, outputDirectory, filetype,
+                           args.verbose)
     unsubs.fetch_unsub_links()
     unsubs.output()
     ExitProgram()
